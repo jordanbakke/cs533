@@ -1,0 +1,17 @@
+Authors: Jordan Bakke, Geoff Maggi
+
+Overview:
+  For Step 1 of the assignment we created the TCB using a struct containing a stack pointer, a pointer to the initial function and a pointer to the initial argument. We wrote a basic function that prints the value of the parameter passed in and the respective code to call it. Once all of the code was written we ran it and got the expected result: 42 (The Answer to the Ultimate Question of Life, The Universe, and Everything).
+  
+  Step 2 of the assignment asked us to create a process for switching and starting threads. Since there is no explicit way to do this in C we implemented it directly at the system level as suggested in the assignment. Our process for switching threads was to push all of the Callee-save registers onto the stack, save the old thread pointer in the TCB, load the new stack pointer into %rsp then pop all the information back off the stack. Implementing a new thread via thread_start was a similar process however instead of popping all the information off the stack and returning we load the first argument into %rdi and call the initial function of the new thread. 
+  
+  Once we added the additional code to the main program to call and keep track of the threads we ran it and got the expected results: The Answer to the Ultimate Question of Life, The Universe, and Everything followed immediately by a Seg Fault. :(
+  
+  The program crashed because it tried to return from thread_wrap() which we created. Since we did not define an exit point it tries to unwined an empty stack creating the Seg Fault.
+  
+  We fixed this by adding a call to yield() at the end of thread_wrap() that returns the control flow back to our main thread which is then exited properly.
+  
+Discussion:
+  1. An elegant way to create and manage an arbitrary number of threads would be keep track of them and their status using a dynamic array similar to our current implementation of current_thread and inactive_thread.
+  2. There are lots of uses for even the simple form of threading we've developed. The biggest one is to make expensive functions run in the background while we still maintain the user-thread for other things. To make this extra feature more useful we would want to implement some type of thread joining that can alert the caller once the callee has finished.
+  3. In our implementation it is safe to free a threads stack once it is done using it. We can clear the threads TCB right before we return from it. If we wanted to return results or implement a join we would need to free the stack after we pulled the information off in the parent thread.

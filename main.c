@@ -11,6 +11,7 @@ thread * inactive_thread;
 void thread_wrap()
 {
     current_thread->initial_function(current_thread->initial_argument);
+    yield();
 }
 
 void yield()
@@ -24,7 +25,6 @@ void yield()
 void do_something(void * arg)
 {
     printf("%d\n", *((int*) arg));
-    yield();
 }
 
 int main(int argc, char *argv[])
