@@ -1,0 +1,11 @@
+Authors: Jordan Bakke, Geoff Maggi
+
+Overview:
+  Overall this was pretty easy to implement following the instructions provided in the assignment. One area we did run into issues with was debugging segfaults that ultimately came down to not setting the Stack Pointer correctly when forking new threads. A few minor errors later the program was running as expected. We primarily tested it with the provided testing script altering it to spin off more threads and seeing how it behaved. All and all I am happy with the code produced.
+  
+Discussion:
+  1. The easiest way to implement memory management into our code would be to do it at the thread level. Since we are not using any shared memory if the threads are properly encapsulated we won't run into issues. To avoid excessive memory use a thread would only allocate/deallocate memory as it needs it. To clean everything up in the end we could add a check to scheduler_end that frees up all remaining memory.
+  
+  2. The scheduler code is ran in a parent thread. We can say we have stopped running in one thread's code when it has returned. (This is pretty clear in the test code as it prints right before returning) The trickier part that this question hints at is managing the threads we've spun off to determine their state. (Are the still running? Have they halted?) This is much more difficult to track from the parent thread even with the thread states we implemented.
+  
+  3. One thing that would be useful that this does not provide is a way for the threads to effectively communicate. Our current code is great for embarrassingly parallel problems but, falls apart once you have dependencies between the threads.
