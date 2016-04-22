@@ -14,8 +14,9 @@ queue ready_list;
 
 void thread_wrap()
 {
-    puts("segfault occurs before this line -- find out why");
     current_thread->initial_function(current_thread->initial_argument);
+    current_thread->state = DONE;
+    yield();
 }
 
 void scheduler_begin()
@@ -37,14 +38,12 @@ void thread_fork(void(*target)(void*), void * arg)
     thread_enqueue(&ready_list, old);
     
     new = malloc(sizeof(thread));
-    new->stack_pointer = malloc(STACK_SIZE);
+    new->stack_pointer = malloc(STACK_SIZE) + STACK_SIZE;
     new->initial_function = target;
     new->initial_argument = arg;
     new->state = RUNNING;
     
     current_thread = new;
-    
-    puts("segfault occurs after this line -- find out why");
     thread_start(old, new);
 }
 
@@ -68,7 +67,7 @@ void yield()
 
 void scheduler_end()
 {
-    for (;;)
+    while(is_empty(&ready_list) == 0)
     {
         yield();
     }
